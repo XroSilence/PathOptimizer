@@ -1,0 +1,12 @@
+{
+  "WindowsSystem": 1000,
+  "PowerShell": 900,
+  "CommandLine": 800,
+  "DevTools": 700,
+  "ProgramFiles": 600,
+  "Languages": 500,
+  "LocalApps": 400,
+  "WindowsApps": 300,
+  "Custom": 200,
+  "Unknown": 100
+}

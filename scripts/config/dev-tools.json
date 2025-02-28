@@ -1,0 +1,16 @@
+{
+  "Node.js": ["node.exe", "npm.cmd", "npx.cmd", "yarn.cmd", "pnpm.cmd"],
+  "Python": ["python.exe", "python3.exe", "pip.exe", "pip3.exe", "conda.exe"],
+  "Git": ["git.exe", "git-bash.exe", "git-cmd.exe"],
+  "VS Code": ["code.cmd", "code-insiders.cmd"],
+  "Java": ["java.exe", "javac.exe", "mvn.cmd", "gradle.bat"],
+  "DotNet": ["dotnet.exe", "msbuild.exe", "nuget.exe"],
+  "Rust": ["cargo.exe", "rustc.exe", "rustup.exe"],
+  "Go": ["go.exe", "gofmt.exe"],
+  "Docker": ["docker.exe", "docker-compose.exe", "kubectl.exe", "helm.exe"],
+  "PowerShell": ["powershell.exe", "pwsh.exe"],
+  "Ruby": ["ruby.exe", "gem.cmd", "bundle.cmd"],
+  "PHP": ["php.exe", "composer.bat"],
+  "TypeScript": ["tsc.cmd", "tsserver.cmd"],
+  "Package Managers": ["fnm.exe", "nvm.cmd", "choco.exe", "scoop.cmd", "winget.exe"]
+}

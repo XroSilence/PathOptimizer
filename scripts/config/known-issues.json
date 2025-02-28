@@ -1,0 +1,15 @@
+{
+  "FNM Multishells": "fnm_multishells",
+  "Temporary Node Paths": "node_modules\\\\.bin",
+  "Duplicate Windows Apps": "Microsoft\\\\WindowsApps",
+  "PIP Tool Cache": "pip\\\\cache",
+  "Python PyCache": "__pycache__",
+  "Local NPM Bin": "\\\\.npm\\\\bin",
+  "Temporary Docker Context": "docker\\\\tmp",
+  "VS Code Extensions": "\\\\.vscode\\\\extensions",
+  "Cache Directories": "\\\\cache\\\\",
+  "Temporary Build Outputs": "\\\\build\\\\temp",
+  "Nvm Temporary Node": "\\\\nvm\\\\temp",
+  "Temporary .NET Tools": "\\\\.dotnet\\\\tools\\\\temp",
+  "Visual Studio Temporary": "\\\\VisualStudio\\\\temp"
+}
