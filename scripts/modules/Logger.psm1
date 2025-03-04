@@ -132,8 +132,8 @@ function Restore-PathFromBackup {
     }
 }
 
-# Load configuration
-function Load-Configuration {
+# Import configuration
+function Import-Configuration {
     param (
         [string]$CustomConfig,
         [string]$ConfigPath
@@ -166,9 +166,9 @@ function Load-Configuration {
                 "PowerShell" = @("powershell.exe", "pwsh.exe")
             }
             KnownIssuePatterns = @{
-                "FNM Multishells" = @"fnm_multishells"@
-                "Temporary Node Paths" = @"node_modules\\.bin"@
-                "Duplicate Windows Apps" = @"Microsoft\\WindowsApps"@
+                "FNM Multishells" = "fnm_multishells"
+                "Temporary Node Paths" = "node_modules\\.bin"
+                "Duplicate Windows Apps" = "Microsoft\\WindowsApps"
             }
             PathPriorities = @{
                 WindowsSystem = 1000
@@ -243,4 +243,4 @@ function Load-Configuration {
 }
 
 # Export module functions
-Export-ModuleMember -Function Initialize-Logger, Write-Log, Backup-PathEnvironment, Restore-PathFromBackup, Load-Configuration
+Export-ModuleMember -Function Initialize-Logger, Write-Log, Backup-PathEnvironment, Restore-PathFromBackup, Import-Configuration

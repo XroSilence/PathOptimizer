@@ -219,8 +219,8 @@ function Remove-ToolDuplicates {
     return $result
 }
 
-# Ensure critical paths are present
-function Ensure-CriticalPaths {
+# Add critical paths if they're missing
+function Add-CriticalPath {
     param (
         [string[]]$Paths,
         [string[]]$CriticalPaths
@@ -247,9 +247,8 @@ function Ensure-CriticalPaths {
     
     return $result
 }
-
 # Clean a set of paths using all appropriate methods
-function Clean-Paths {
+function Clear-Paths {
     param (
         [string[]]$Paths,
         [hashtable]$ToolAnalysis,
@@ -300,4 +299,4 @@ function Clean-Paths {
 }
 
 # Export module functions
-Export-ModuleMember -Function Get-NormalizedPath, Remove-DuplicatePaths, Remove-EmptyPaths, Remove-NonExistentPaths, Remove-TemporaryPaths, Remove-KnownIssuePaths, Remove-ToolDuplicates, Ensure-CriticalPaths, Clean-Paths
+Export-ModuleMember -Function Get-NormalizedPath, Remove-DuplicatePaths, Remove-EmptyPaths, Remove-NonExistentPaths, Remove-TemporaryPaths, Remove-KnownIssuePaths, Remove-ToolDuplicates, Add-CriticalPaths, Clean-Paths

@@ -2,7 +2,7 @@
 # Provides path analysis functionality for the PathOptimizer
 
 # Analyze the current PATH environment
-function Analyze-PathEnvironment {
+function Test-PathEnvironment {
     param (
         [hashtable]$Config
     )
@@ -187,18 +187,18 @@ function Show-AnalysisSummary {
     }
     
     # Known issues
-    $knownIssueCount = 0
+    $totalKnownIssueCount = 0
     foreach ($issueName in $Analysis.KnownIssues.Keys) {
-        $count = $Analysis.KnownIssues[$issueName].Count
-        $knownIssueCount += $count
+        $issueCount = $Analysis.KnownIssues[$issueName].Count
+        $totalKnownIssueCount += $issueCount
         
-        if ($count -gt 0) {
-            Write-Host "  - $issueName: $count entries" -ForegroundColor Yellow
+        if ($issueCount -gt 0) {
+            Write-Host "  - $issueName`: $issueCount entries" -ForegroundColor Yellow
         }
     }
     
-    if ($knownIssueCount -gt 0) {
-        Write-Host "  - Total known issues: $knownIssueCount" -ForegroundColor Yellow
+    if ($totalKnownIssueCount -gt 0) {
+        Write-Host "  - Total known issues: $totalKnownIssueCount" -ForegroundColor Yellow
     }
     
     # Tools detected
@@ -210,7 +210,7 @@ function Show-AnalysisSummary {
             $pathCount = $Analysis.ToolAnalysis[$toolName].Paths.Count
             $exeCount = $Analysis.ToolAnalysis[$toolName].ExecutablesFound.Count
             
-            Write-Host "  - $toolName found in $pathCount $(if ($pathCount -eq 1) { "path" } else { "paths" })" -ForegroundColor $(if ($pathCount -gt 1) { "Yellow" } else { "Green" })
+            Write-Host "  - $toolName found in $pathCount $(if ($pathCount -eq 1) { "path" } else { "paths" }) with $exeCount executables" -ForegroundColor $(if ($pathCount -gt 1) { "Yellow" } else { "Green" })
         }
     }
     
@@ -331,4 +331,4 @@ function Get-PathPriority {
 }
 
 # Export module functions
-Export-ModuleMember -Function Analyze-PathEnvironment, Show-AnalysisSummary, Get-PathCategory, Get-PathPriority
+Export-ModuleMember -Function Test-PathEnvironment, Show-AnalysisSummary, Get-PathCategory, Get-PathPriority

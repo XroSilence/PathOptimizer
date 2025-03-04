@@ -205,7 +205,7 @@ function Show-OptimizationPlan {
 }
 
 # Apply the optimization plan to the PATH environment
-function Apply-PathChanges {
+function Set-PathChanges {
     param (
         [hashtable]$Plan,
         [switch]$WhatIf
@@ -253,4 +253,4 @@ function Apply-PathChanges {
 }
 
 # Export module functions
-Export-ModuleMember -Function New-OptimizationPlan, Optimize-PathOrder, Compare-PathLists, Show-OptimizationPlan, Apply-PathChanges
+Export-ModuleMember -Function New-OptimizationPlan, Optimize-PathOrder, Compare-PathLists, Show-OptimizationPlan, Set-PathChanges

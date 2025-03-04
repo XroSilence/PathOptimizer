@@ -2,7 +2,7 @@
 # Provides path validation functionality for the PathOptimizer
 
 # Validate a list of paths
-function Validate-Paths {
+function Test-Paths {
     param (
         [string[]]$Paths,
         [hashtable]$Config
@@ -180,4 +180,4 @@ function Test-PathLength {
 }
 
 # Export module functions
-Export-ModuleMember -Function Validate-Paths, Show-ValidationSummary, Test-CommandAccessibility, Test-PathLength
+Export-ModuleMember -Function Test-Paths, Show-ValidationSummary, Test-CommandAccessibility, Test-PathLength
