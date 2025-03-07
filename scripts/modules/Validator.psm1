@@ -2,6 +2,7 @@
 # Provides path validation functionality for the PathOptimizer
 
 # Validate a list of paths
+# This module provides functions to validate and analyze PATH environment variables
 function Test-Paths {
     param (
         [string[]]$Paths,

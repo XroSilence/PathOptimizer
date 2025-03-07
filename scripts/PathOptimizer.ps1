@@ -92,20 +92,19 @@ if (-not $LogFile) {
     $LogFile = Join-Path -Path $ScriptPath -ChildPath "PathOptimizer_$timestamp.log"
 }
 Initialize-Logger -LogFile $LogFile -Verbose:$Verbose
+
 if (-not $NonInteractive -and -not $Interactive) {
     $Interactive = $true
 }
 elseif ($NonInteractive) {
     $Interactive = $false
 }
-elseif ($NonInteractive) {
-}
-  
+
 # Display welcome banner
 $bannerText = @"
  ____       _   _      ___        _   _           _
 |  _ \ __ _| |_| |__  / _ \ _ __ | |_(_)_ __ ___ (_)_______  _ __
-| |_) / _` | __| '_ \  | | | '_ \| __| | '_ ` _ \| |_  / _ \| '__|
+| |_) / _` | __| '_ \| | | | '_ \| __| | '_ ` _ \| |_  / _ \| '__|
 |  __/ (_| | |_| | | | |_| | |_) | |_| | | | | | | |/ / (_) | |
 |_|   \__,_|\__|_| |_|\___/| .__/ \__|_|_| |_| |_|_/___\___/|_|
                            |_|
@@ -127,13 +126,13 @@ if (-not $SkipBackup) {
 }
 
 # Load configuration
-$config = Load-Configuration -CustomConfig $CustomConfig -ConfigPath $ConfigPath
+$config = Get-Configuration -CustomConfig $CustomConfig -ConfigPath $ConfigPath
 Write-Log "Loaded configuration: $(ConvertTo-Json -InputObject $config -Compress)"
 
-# Admin check
 # Begin processing
 try {
     $analysisResult = Start-PathEnvironmentAnalysis -Config $config
+    $validationResult = ValidatePathsStep -Paths $analysisResult.Paths -Config $config
     $optimizationPlan = GenerateOptimizationPlanStep -Analysis $analysisResult -Validation $validationResult -Config $config -FixSpecificIssue $FixSpecificIssue
     ApplyOrSimulateChangesStep -OptimizationPlan $optimizationPlan -WhatIf $WhatIf -Interactive $Interactive
 }
@@ -146,8 +145,26 @@ finally {
 }
 
 function Start-PathEnvironmentAnalysis {
+    <#
+    .SYNOPSIS
+        Analyzes the current PATH environment.
+        
+    .DESCRIPTION
+        This function analyzes the current PATH environment and returns the analysis results.
+        
+    .PARAMETER Config
+        The configuration settings to use for the analysis.
+        
+    .OUTPUTS
+        Hashtable containing the analysis results.
+        
+    .EXAMPLE
+        $analysisResult = Start-PathEnvironmentAnalysis -Config $config
+    #>
+    param (
         [Parameter(Mandatory=$true)]
         [object]$Config
+    )
     
     Write-Host "Analyzing PATH environment..." -ForegroundColor Cyan
     $analysisResult = Analyze-PathEnvironment -Config $Config
@@ -156,6 +173,25 @@ function Start-PathEnvironmentAnalysis {
 }
 
 function ValidatePathsStep {
+    <#
+    .SYNOPSIS
+        Validates the paths in the PATH environment.
+        
+    .DESCRIPTION
+        This function validates the paths in the PATH environment and returns the validation results.
+        
+    .PARAMETER Paths
+        The paths to validate.
+        
+    .PARAMETER Config
+        The configuration settings to use for the validation.
+        
+    .OUTPUTS
+        Hashtable containing the validation results.
+        
+    .EXAMPLE
+        $validationResult = ValidatePathsStep -Paths $analysisResult.Paths -Config $config
+    #>
     param (
         [Parameter(Mandatory=$true)]
         [array]$Paths,
@@ -169,6 +205,31 @@ function ValidatePathsStep {
 }
 
 function GenerateOptimizationPlanStep {
+    <#
+    .SYNOPSIS
+        Generates an optimization plan for the PATH environment.
+        
+    .DESCRIPTION
+        This function generates an optimization plan based on the analysis and validation results.
+        
+    .PARAMETER Analysis
+        The analysis results.
+        
+    .PARAMETER Validation
+        The validation results.
+        
+    .PARAMETER Config
+        The configuration settings to use for the optimization.
+        
+    .PARAMETER FixSpecificIssue
+        The specific issue to fix.
+        
+    .OUTPUTS
+        Hashtable containing the optimization plan.
+        
+    .EXAMPLE
+        $optimizationPlan = GenerateOptimizationPlanStep -Analysis $analysisResult -Validation $validationResult -Config $config -FixSpecificIssue "All"
+    #>
     param (
         [Parameter(Mandatory=$true)]
         [object]$Analysis,
@@ -186,6 +247,28 @@ function GenerateOptimizationPlanStep {
 }
 
 function ApplyOrSimulateChangesStep {
+    <#
+    .SYNOPSIS
+        Applies or simulates the changes based on the optimization plan.
+        
+    .DESCRIPTION
+        This function applies or simulates the changes based on the optimization plan.
+        
+    .PARAMETER OptimizationPlan
+        The optimization plan to apply or simulate.
+        
+    .PARAMETER WhatIf
+        If specified, simulates the changes without applying them.
+        
+    .PARAMETER Interactive
+        If specified, prompts for confirmation before applying changes.
+        
+    .OUTPUTS
+        None.
+        
+    .EXAMPLE
+        ApplyOrSimulateChangesStep -OptimizationPlan $optimizationPlan -WhatIf -Interactive
+    #>
     param (
         [Parameter(Mandatory=$true)]
         [object]$OptimizationPlan,
@@ -200,22 +283,20 @@ function ApplyOrSimulateChangesStep {
     }
     else {
         $proceedWithChanges = $true
-    $proceedWithChanges = $true
-    if ($Interactive) {
-        $confirmMessage = "Do you want to proceed with the changes described above? (yes/no)"
-        $confirmation = Read-Host $confirmMessage
-        $proceedWithChanges = $confirmation -eq "yes"
-    }
-    
-    if ($proceedWithChanges) {
-        Write-Host "Applying changes..." -ForegroundColor Cyan
+        if ($Interactive) {
+            $confirmMessage = "Do you want to proceed with the changes described above? (yes/no)"
+            $confirmation = Read-Host $confirmMessage
+            $proceedWithChanges = $confirmation -eq "yes"
+        }
+        
+        if ($proceedWithChanges) {
+            Write-Host "Applying changes..." -ForegroundColor Cyan
+            $applyResult = Apply-OptimizationPlan -OptimizationPlan $OptimizationPlan
             if ($applyResult.Success) {
                 Write-Host "PATH optimization completed successfully!" -ForegroundColor Green
                 Write-Host "Summary of changes:" -ForegroundColor Green
                 Write-Host "- User PATH entries: $($applyResult.UserPathCount) (removed $($applyResult.UserPathsRemoved))" -ForegroundColor Green
                 Write-Host "- System PATH entries: $($applyResult.SystemPathCount) (reordered for optimal performance)" -ForegroundColor Green
-                Write-Host "Please restart your terminal to apply the changes." -ForegroundColor Yellow
-                Write-Log "PATH optimization completed successfully: User entries=$($applyResult.UserPathCount), System entries=$($applyResult.SystemPathCount)"
             }
             else {
                 Write-Host "Error applying changes: $($applyResult.Error)" -ForegroundColor Red
@@ -230,6 +311,31 @@ function ApplyOrSimulateChangesStep {
 }
 
 function HandleError {
+    <#
+    .SYNOPSIS
+        Handles errors that occur during the script execution.
+        
+    .DESCRIPTION
+        This function handles errors that occur during the script execution and attempts to restore the PATH from backup if necessary.
+        
+    .PARAMETER Error
+        The error object.
+        
+    .PARAMETER SkipBackup
+        If specified, skips restoring the PATH from backup.
+        
+    .PARAMETER WhatIf
+        If specified, indicates that the script was run in WhatIf mode.
+        
+    .PARAMETER BackupFile
+        The backup file to restore from.
+        
+    .OUTPUTS
+        None.
+        
+    .EXAMPLE
+        HandleError -Error $_ -SkipBackup -WhatIf -BackupFile $backupFile
+    #>
     param (
         [Parameter(Mandatory=$true)]
         [object]$Error,
@@ -258,3 +364,50 @@ function HandleError {
     }
 }
 
+function Get-Configuration {
+    <#
+    .SYNOPSIS
+        Loads the configuration settings.
+        
+    .DESCRIPTION
+        This function loads the configuration settings from the specified custom configuration file or the default configuration file.
+        
+    .PARAMETER CustomConfig
+        The custom configuration file to load.
+        
+    .PARAMETER ConfigPath
+        The path to the configuration directory.
+        
+    .OUTPUTS
+        Hashtable containing the configuration settings.
+        
+    .EXAMPLE
+        $config = Get-Configuration -CustomConfig "customConfig.xml" -ConfigPath "config"
+    #>
+    param (
+        [string]$CustomConfig,
+        [string]$ConfigPath
+    )
+    Write-Host "Loading configuration..." -ForegroundColor Cyan
+    if ($CustomConfig) {
+        if (Test-Path -Path $CustomConfig) {
+            return Import-Clixml -Path $CustomConfig
+        }
+        else {
+            Write-Host "Custom configuration file not found: $CustomConfig" -ForegroundColor Red
+            return $null
+        }
+    }
+    else {
+        $defaultConfigFile = Join-Path -Path $ConfigPath -ChildPath "defaultConfig.xml"
+        if (Test-Path -Path $defaultConfigFile) {
+            return Import-Clixml -Path $defaultConfigFile
+        }
+        else {
+            Write-Host "Default configuration file not found: $defaultConfigFile" -ForegroundColor Red
+            return $null
+        }
+    }
+}
+
+# End of script

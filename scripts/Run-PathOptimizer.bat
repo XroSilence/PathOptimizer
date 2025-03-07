@@ -2,12 +2,19 @@
 setlocal enabledelayedexpansion
 
 :: Check for Administrator privileges
-net session >nul 2>&1
-if ERRORLEVEL neq 0 (
-  echo This script requires Administrator privileges.
-  echo Please right-click and select "Run as administrator".
-  pause
-  exit /b 1
+if exist "%SystemRoot%\System32\net.exe" (
+    "%SystemRoot%\System32\net.exe" session >nul 2>&1
+    if ERRORLEVEL neq 0 (
+      echo This script requires Administrator privileges.
+      echo Please right-click and select "Run as administrator".
+      pause
+      exit /b 1
+    )
+) else (
+    echo net.exe not found. Unable to check for Administrator privileges.
+    echo Please run the script as administrator.
+    pause
+    exit /b 1
 )
 
 echo PathOptimizer - Windows PATH Environment Optimizer
@@ -20,7 +27,7 @@ cd /d "%~dp0"
 :: Parse command line arguments
 set WHATIF=
 set VERBOSE=
-set INTERACTIVE=
+set INTERACTIVE=-Interactive
 set NONINTERACTIVE=
 set FIXISSUE=All
 set CUSTOMCONFIG=
@@ -31,13 +38,9 @@ if /i "%~1" == "-WhatIf" (
   set WHATIF=-WhatIf
 ) else if /i "%~1" == "-Verbose" (
   set VERBOSE=-Verbose
-if /i "%~1" == "-FixSpecificIssue" (
+) else if /i "%~1" == "-FixSpecificIssue" (
   if "%~2" == "" (
     echo Error: -FixSpecificIssue requires an argument.
-    exit /b 1
-  )
-  if "%~2"=="" (
-    echo Error: -FixSpecificIssue requires a value.
     exit /b 1
   )
   set FIXISSUE=%~2
@@ -49,10 +52,9 @@ if /i "%~1" == "-FixSpecificIssue" (
   )
   set CUSTOMCONFIG=-CustomConfig "%~2"
   shift
-)
-) else if /i "%~1" == "-CustomConfig" (
-  set CUSTOMCONFIG=-CustomConfig "%~2"
-  shift
+) else if /i "%~1" == "-NonInteractive" (
+  set NONINTERACTIVE=-NonInteractive
+  set INTERACTIVE=
 )
 shift
 goto parse_args
@@ -60,7 +62,7 @@ goto parse_args
 :run_script
 echo Running PathOptimizer with the following settings:
 if defined WHATIF echo - Simulation mode (no changes will be made)
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+if defined VERBOSE echo - Verbose output
 if defined INTERACTIVE echo - Interactive mode
 if defined NONINTERACTIVE echo - Non-interactive mode
 echo - Issue focus: %FIXISSUE%
@@ -68,8 +70,10 @@ if defined CUSTOMCONFIG echo - Using custom configuration
 echo.
 
 echo Starting PowerShell script...
+set "PowerShellParams=%WHATIF% %VERBOSE% %INTERACTIVE% %NONINTERACTIVE%"
+
 PowerShell.exe -NoProfile -ExecutionPolicy Bypass -Command ^
-  "& { . ""%~dp0PathOptimizer.ps1"" %WHATIF% %VERBOSE% %INTERACTIVE% %NONINTERACTIVE% -FixSpecificIssue %FIXISSUE% %CUSTOMCONFIG% }"
+  "& { . ""%~dp0PathOptimizer.ps1"" %PowerShellParams% -FixSpecificIssue %FIXISSUE% %CUSTOMCONFIG% }"
 
 echo.
 if %ERRORLEVEL% equ 0 (
